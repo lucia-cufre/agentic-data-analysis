@@ -1,6 +1,7 @@
-import { SCHEMA_DESCRIPTION, buildQuery } from "./schema";
+import { buildQuery } from "./schema";
 import { executeQuery } from "./bigQuery";
 import { validateDateRange, validateSql } from "./validate";
+import { SYSTEM_PROMPT } from "./prompt";
 
 const MAX_TURNS = 10;
 
@@ -16,6 +17,17 @@ type ContentBlock =
 type ModelResponse = {
   content: ContentBlock[];
   stop_reason: "tool_use" | "end_turn" | "max_tokens";
+};
+
+type ToolResultBlock = {
+  type: "tool_result";
+  tool_use_id: string;
+  content: string;
+};
+
+type Message = {
+  role: "user" | "assistant";
+  content: string | ContentBlock[] | ToolResultBlock[];
 };
 
 const RUN_QUERY_TOOL = {
@@ -57,7 +69,7 @@ async function callModel(messages: any[]): Promise<ModelResponse> {
     body: JSON.stringify({
       model: "claude-sonnet-4-5",
       max_tokens: 1024,
-      system: SCHEMA_DESCRIPTION,
+      system: SYSTEM_PROMPT,
       tools: [RUN_QUERY_TOOL],
       messages,
     }),
@@ -74,8 +86,11 @@ function toolResult(toolUseId: string, payload: unknown) {
   };
 }
 
-export async function runAgent(question: string): Promise<string> {
-  const messages: any[] = [{ role: "user", content: question }];
+export async function runAgent(
+  question: string,
+  history: Message[] = [],
+): Promise<{ text: string; history: Message[] }> {
+  const messages: any[] = [...history, { role: "user", content: question }];
 
   for (let i = 0; i < MAX_TURNS; i++) {
     const data = await callModel(messages);
@@ -84,7 +99,8 @@ export async function runAgent(question: string): Promise<string> {
         .filter((b) => b.type === "text")
         .map((b) => b.text)
         .join("\n");
-      return text;
+      messages.push({ role: "assistant", content: data.content });
+      return { text, history: messages };
     }
 
     const toolUse = data.content.filter(
@@ -120,10 +136,16 @@ export async function runAgent(question: string): Promise<string> {
           const result = await executeQuery(finalSql);
           toolResults.push(toolResult(block.id, result));
         } catch (error) {
-          toolResults.push(toolResult(block.id, { error: error instanceof Error ? error.message : "Query failed." }));
+          toolResults.push(
+            toolResult(block.id, {
+              error: error instanceof Error ? error.message : "Query failed.",
+            }),
+          );
         }
       } else {
-        toolResults.push(toolResult(block.id, { error: `Unknown tool: ${block.name}` }));
+        toolResults.push(
+          toolResult(block.id, { error: `Unknown tool: ${block.name}` }),
+        );
       }
     }
 
@@ -132,5 +154,7 @@ export async function runAgent(question: string): Promise<string> {
   }
 
   console.warn(`Turn limit (${MAX_TURNS}) reached before the model finished.`);
-  return "I could not complete the analysis within the turn limit.";
+  const text = "I could not complete the analysis within the turn limit.";
+  messages.push({ role: "assistant", content: text });
+  return { text, history: messages };
 }
