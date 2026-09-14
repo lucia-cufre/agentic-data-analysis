@@ -3,6 +3,13 @@ import { ValidationResult } from "./validation-type";
 export type ChartType = "bar" | "line" | "pie";
 const CHART_TYPES: ChartType[] = ["bar", "line", "pie"];
 
+export type ChartSpec = {
+  type: ChartType;
+  title: string;
+  labels: string[];
+  series: { name: string; values: number[] }[];
+};
+
 export function validateChartSpec(
   type: ChartType,
   labels: string[],
