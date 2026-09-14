@@ -1,10 +1,10 @@
+import { ChartType } from "./chart-validation";
+import { ValidationResult } from "./validation-type";
+
 const MIN_DATE = "20201101";
 const MAX_DATE = "20210131";
 
 const DATE_FORMAT = /^\d{8}$/;
-
-export type ValidationResult =
-  { valid: true } | { valid: false; error: string };
 
 function isRealDate(yyyymmdd: string): boolean {
   const year = Number(yyyymmdd.slice(0, 4));
