@@ -31,7 +31,7 @@ type ToolResultBlock = {
   content: string;
 };
 
-type Message = {
+export type Message = {
   role: "user" | "assistant";
   content: string | ContentBlock[] | ToolResultBlock[];
 };
