@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { runAgent } from "./agent";
+import { runAgent } from "./agent/agent";
 
 let history: any[] = [];
 

@@ -1,12 +1,12 @@
 import { buildQuery } from "./schema";
-import { executeQuery } from "./bigQuery";
-import { validateDateRange, validateSql } from "./validators/query-validation";
+import { executeQuery } from "../connection/bigQuery";
+import { validateDateRange, validateSql } from "../validators/query-validation";
 import { SYSTEM_PROMPT } from "./prompt";
 import {
   ChartSpec,
   ChartType,
   validateChartSpec,
-} from "./validators/chart-validation";
+} from "../validators/chart-validation";
 
 const MAX_TURNS = 10;
 
