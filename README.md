@@ -4,7 +4,7 @@ A conversational data analysis app over the GA4 e-commerce sample dataset in Big
 
 ## Prerequisites
 
-- Node.js
+- Node.js 22 or newer
 - A Google Cloud account with the BigQuery API enabled
 - An Anthropic API key
 
