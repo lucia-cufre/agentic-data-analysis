@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HockeyStack Agent</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <h1>HockeyStack Agent Data Analysis</h1>
+    <p class="subtitle">
+      Ask questions about the GA4 ecommerce dataset (2020-11-01 to 2021-01-31).
+    </p>
+
+    <div class="example-questions">
+      <button type="button" class="example-question">
+        What were total sessions and revenue by month?
+      </button>
+      <button type="button" class="example-question">
+        Which products generated the most revenue?
+      </button>
+      <button type="button" class="example-question">
+        How does conversion rate vary by device?
+      </button>
+    </div>
+
+    <div id="messages"></div>
+
+    <form id="chat-form">
+      <input
+        type="text"
+        id="chat-input"
+        placeholder="Type your message..."
+        autocomplete="off"
+      />
+      <button type="submit">Send</button>
+    </form>
+  </body>
+</html>
