@@ -86,11 +86,6 @@ function handleCreateChart(
 }
 
 function toolResult(toolUseId: string, payload: unknown): ToolResultBlock {
-  //logger for debugging
-  console.log(
-    `Tool result for ${toolUseId}:`,
-    JSON.stringify(payload, null, 2),
-  );
   return {
     type: "tool_result",
     tool_use_id: toolUseId,

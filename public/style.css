@@ -87,6 +87,7 @@ h1 {
   padding: 12px;
   position: relative;
   height: 300px;
+  flex-shrink: 0;
 }
 
 #chat-form {

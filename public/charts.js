@@ -1,14 +1,19 @@
 // charts implementation code file
 const CHART_COLORS = ["#6ea8fe", "#f4a4b8", "#8fd4a8", "#f7c76b", "#b9a0e8"];
 
-export function addCharts(charts) {
+export function addCharts(charts, container) {
   charts.forEach((chart, i) => {
     const wrapper = document.createElement("div");
     wrapper.className = "chart-wrapper";
     const canvas = document.createElement("canvas");
     wrapper.appendChild(canvas);
-    messagesEl.appendChild(wrapper);
+    container.appendChild(wrapper);
 
+    const isHorizontal = chart.type === "bar" && chart.labels.length > 6;
+    if (isHorizontal) {
+      wrapper.style.height = `${140 + chart.labels.length * 32}px`;
+    }
+    
     new Chart(canvas, {
       type: chart.type,
       data: {
@@ -20,6 +25,7 @@ export function addCharts(charts) {
         })),
       },
       options: {
+        indexAxis: chart.labels.length > 6 ? "y" : "x",
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
@@ -32,5 +38,5 @@ export function addCharts(charts) {
       },
     });
   });
-  messagesEl.scrollTop = messagesEl.scrollHeight;
+  container.scrollTop = container.scrollHeight;
 }

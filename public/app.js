@@ -1,4 +1,4 @@
-import { addCharts } from "./charts";
+import { addCharts } from "./charts.js";
 
 const messagesEl = document.getElementById("messages");
 const form = document.getElementById("chat-form");
@@ -48,7 +48,7 @@ async function sendQuestion(question) {
     conversationId = data.conversationId;
     addMessage("assistant", data.text);
     if (data.charts?.length > 0) {
-      addCharts(data.charts);
+      addCharts(data.charts, messagesEl);
     }
   } catch (err) {
     pending.remove();

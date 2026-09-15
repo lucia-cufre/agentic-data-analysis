@@ -30,11 +30,10 @@ export const CREATE_CHART_TOOL = {
   name: "create_chart",
   description:
     "Render a chart from data already returned by run_query. " +
-    "Use it when a chart makes the answer easier to understand, such as comparing " +
-    "values over time or across categories. Do not use it for a single number. " +
+    "Call this tool whenever a query result has three or more rows and at least " +
+    "one numeric column: comparisons across categories, breakdowns, and anything " +
+    "over time all qualify. Skip it only for a single number or a two-row result. " +
     "Never invent values: every number must come from a query result. " +
-    "All series in one chart must share the same unit, since they share a y-axis. " +
-    "Never mix counts with currency, or absolute numbers with percentages. " +
     "If the answer needs both, call this tool twice, one chart per unit.",
   input_schema: {
     type: "object",
