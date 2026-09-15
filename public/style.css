@@ -43,7 +43,6 @@ h1 {
 }
 
 #messages {
-  min-height: 200px;
   max-height: 60vh;
   overflow-y: auto;
   display: flex;
