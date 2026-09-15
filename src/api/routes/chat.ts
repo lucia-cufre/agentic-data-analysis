@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { Router } from "express";
-import { runAgent } from "../../agent/agent.js";
-import { Message } from "../../agent/types.js";
+import { runAgent } from "../../agent/agent";
+import { Message } from "../../agent/types";
 
 const chatRouter = Router();
 

@@ -62,7 +62,7 @@ The GA4 e-commerce sample dataset only covers **November 1, 2020 through January
 ## Project structure
 
 - `src/api/server.ts` — Express app entry point; serves the static frontend from `public/` and mounts the API routes.
-- `src/api/routes/` — HTTP routes; `call-agents.ts` exposes the `/api/call-agents/chat` endpoint that receives a question, keeps per-conversation history in memory, and runs the agent.
+- `src/api/routes/` — HTTP routes; `chat.ts` exposes the `POST /api/chat` endpoint that receives a question, keeps per-conversation history in memory, and runs the agent.
 - `src/agent/agent.ts` — the agentic loop itself: calls the Anthropic Messages API, dispatches tool calls (`run_query`, `create_chart`), and feeds results back to the model until it produces a final answer.
 - `src/agent/prompt.ts` / `src/agent/schema.ts` — the system prompt and the description of the queryable `sessions`/`items` tables (derived from the GA4 events schema).
 - `src/agent/tools.ts` / `src/agent/types.ts` — tool definitions given to the model and the shared message/response types.

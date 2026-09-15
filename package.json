@@ -1,25 +1,33 @@
 {
-  "name": "hockeystack-agent",
+  "name": "ecommerce-agent",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "tsx watch src/api/server.ts"
-  },
-  "type": "module",
-  "keywords": [],
-  "author": "",
+  "description": "Conversational data analysis agent over the GA4 e-commerce sample dataset in BigQuery.",
+  "author": "Lucía Cufré Aman",
   "license": "ISC",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/api/server.ts",
+    "start": "tsx src/api/server.ts",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write \"src/**/*.ts\" \"public/**/*.{js,css,html}\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "bigquery",
+    "ga4",
+    "llm-agent",
+    "data-analysis"
+  ],
   "dependencies": {
     "@google-cloud/bigquery": "^9.0.3",
     "dotenv": "^17.4.2",
-    "express": "^5.2.1",
-    "prettier": "^3.9.6"
+    "express": "^5.2.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/node": "^26.5.1",
+    "prettier": "^3.9.6",
     "tsx": "^4.23.13",
     "typescript": "^7.0.2"
   }
