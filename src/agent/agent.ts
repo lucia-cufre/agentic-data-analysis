@@ -35,7 +35,13 @@ async function callModel(messages: Message[]): Promise<ModelResponse> {
     }),
   });
 
-  return response.json();
+  const data = await response.json();
+
+  if (!response.ok || data.type === "error") {
+    throw new Error(data.error?.message ?? "Model API request failed");
+  }
+
+  return data;
 }
 
 async function handleRunQuery(block: ToolUseBlock): Promise<ToolResultBlock> {
