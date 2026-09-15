@@ -5,6 +5,7 @@ const submitButton = form.querySelector("button[type='submit']");
 const exampleButtons = document.querySelectorAll(".example-question");
 
 let conversationId = null;
+const CHART_COLORS = ["#6ea8fe", "#f4a4b8", "#8fd4a8", "#f7c76b", "#b9a0e8"];
 
 function agentIsLoading(isLoading) {
   input.disabled = isLoading;
@@ -22,7 +23,8 @@ function addMessage(classNames, text) {
 }
 
 function addCharts(charts) {
-  for (const chart of charts) {
+  console.log("charts received:", JSON.stringify(charts, null, 2));
+  charts.forEach((chart, i) => {
     const wrapper = document.createElement("div");
     wrapper.className = "chart-wrapper";
     const canvas = document.createElement("canvas");
@@ -33,9 +35,10 @@ function addCharts(charts) {
       type: chart.type,
       data: {
         labels: chart.labels,
-        datasets: chart.series.map((s) => ({
+        datasets: chart.series.map((s, j) => ({
           label: s.name,
           data: s.values,
+          backgroundColor: CHART_COLORS[(i + j) % CHART_COLORS.length],
         })),
       },
       options: {
@@ -43,10 +46,14 @@ function addCharts(charts) {
         maintainAspectRatio: false,
         plugins: {
           title: { display: true, text: chart.title },
+          subtitle: {
+            display: !!chart.description,
+            text: chart.description ?? "",
+          },
         },
       },
     });
-  }
+  });
   messagesEl.scrollTop = messagesEl.scrollHeight;
 }
 
@@ -58,7 +65,7 @@ async function sendQuestion(question) {
   const pending = addMessage("assistant pending", "Thinking...");
 
   try {
-    const response = await fetch("/api/chat", {
+    const response = await fetch("/api/call-agents/chat", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ question, conversationId }),

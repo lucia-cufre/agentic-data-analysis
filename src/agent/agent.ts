@@ -121,11 +121,11 @@ export async function runAgent(
             }),
           );
         }
-
       } else if (block.name === "create_chart") {
-        const { type, title, labels, series } = block.input as {
+        const { type, title, description, labels, series } = block.input as {
           type: ChartType;
           title: string;
+          description: string;
           labels: string[];
           series: { name: string; values: number[] }[];
         };
@@ -136,7 +136,7 @@ export async function runAgent(
           toolResults.push(toolResult(block.id, { error: result.error }));
           continue;
         }
-        charts.push({ type, title, labels, series });
+        charts.push({ type, title, description, labels, series });
         toolResults.push(
           toolResult(block.id, { valid: true, message: "Chart created." }),
         );

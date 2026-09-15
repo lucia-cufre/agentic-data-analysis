@@ -29,9 +29,13 @@ export const RUN_QUERY_TOOL = {
 export const CREATE_CHART_TOOL = {
   name: "create_chart",
   description:
-    "Render a chart from data already returned by run_query." +
-    "Use it when a chart makes the answer easier to understand, such as comparing values over time or across categories." +
-    "Do not use it for a single number. Never invent values: every number must come from a query result.",
+    "Render a chart from data already returned by run_query. " +
+    "Use it when a chart makes the answer easier to understand, such as comparing " +
+    "values over time or across categories. Do not use it for a single number. " +
+    "Never invent values: every number must come from a query result. " +
+    "All series in one chart must share the same unit, since they share a y-axis. " +
+    "Never mix counts with currency, or absolute numbers with percentages. " +
+    "If the answer needs both, call this tool twice, one chart per unit.",
   input_schema: {
     type: "object",
     properties: {
@@ -45,6 +49,12 @@ export const CREATE_CHART_TOOL = {
         type: "string",
         description:
           "A relevant short title describing what the chart shows, 4 words maximum.",
+      },
+      description: {
+        type: "string",
+        description:
+          "One short sentence explaining what this chart shows and what stands out in it. " +
+          "It appears under the title, so do not repeat the title wording.",
       },
       labels: {
         type: "array",
@@ -68,6 +78,6 @@ export const CREATE_CHART_TOOL = {
           "A pie chart takes exactly one series.",
       },
     },
-    required: ["type", "title", "labels", "series"],
+    required: ["type", "title", "description", "labels", "series"],
   },
 };

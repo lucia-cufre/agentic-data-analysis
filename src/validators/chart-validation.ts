@@ -6,6 +6,7 @@ const CHART_TYPES: ChartType[] = ["bar", "line", "pie"];
 export type ChartSpec = {
   type: ChartType;
   title: string;
+  description: string;
   labels: string[];
   series: { name: string; values: number[] }[];
 };
