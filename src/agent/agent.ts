@@ -142,7 +142,5 @@ export async function runAgent(
   console.warn(`Turn limit (${MAX_TURNS}) reached before the model finished.`);
 
   const text = "I could not complete the analysis within the turn limit.";
-  messages.push({ role: "assistant", content: text });
-
-  return { text, charts, history: messages };
+  return { text, charts, history };
 }
