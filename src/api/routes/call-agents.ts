@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { Router } from "express";
-import { Message, runAgent } from "../../agent/agent";
+import { runAgent } from "../../agent/agent";
+import { Message } from "../../agent/types";
 
 const callAgentsRouter = Router();
 

@@ -1,7 +1,7 @@
 import "dotenv/config";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import express from "express";
+import express, { NextFunction, Request, Response } from "express";
 import router from "./routes/routes";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -14,6 +14,11 @@ const createApp = () => {
   app.use(express.json());
   app.use(express.static(PUBLIC_DIR));
   app.use(router);
+
+  app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
+  });
 
   return app;
 };

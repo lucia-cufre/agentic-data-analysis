@@ -8,33 +8,15 @@ import {
   validateChartSpec,
 } from "../validators/chart-validation";
 import { CREATE_CHART_TOOL, RUN_QUERY_TOOL } from "./tools";
+import {
+  ContentBlock,
+  Message,
+  ModelResponse,
+  ToolResultBlock,
+  ToolUseBlock,
+} from "./types";
 
 const MAX_TURNS = 10;
-
-type ContentBlock =
-  | { type: "text"; text: string }
-  | {
-      type: "tool_use";
-      id: string;
-      name: string;
-      input: Record<string, unknown>;
-    };
-
-type ModelResponse = {
-  content: ContentBlock[];
-  stop_reason: "tool_use" | "end_turn" | "max_tokens";
-};
-
-type ToolResultBlock = {
-  type: "tool_result";
-  tool_use_id: string;
-  content: string;
-};
-
-export type Message = {
-  role: "user" | "assistant";
-  content: string | ContentBlock[] | ToolResultBlock[];
-};
 
 async function callModel(messages: any[]): Promise<ModelResponse> {
   const response = await fetch("https://api.anthropic.com/v1/messages", {
@@ -56,7 +38,59 @@ async function callModel(messages: any[]): Promise<ModelResponse> {
   return response.json();
 }
 
-function toolResult(toolUseId: string, payload: unknown) {
+async function handleRunQuery(block: ToolUseBlock): Promise<ToolResultBlock> {
+  const { sql, start_date, end_date } = block.input as {
+    sql: string;
+    start_date: string;
+    end_date: string;
+  };
+  const checks = [validateSql(sql), validateDateRange(start_date, end_date)];
+  const failures = checks.filter((c) => !c.valid);
+
+  if (failures.length > 0) {
+    // If both validation fails, we return both data errors in the tool result.
+    // This is to avoid the model having to fix one error, then getting another error on the next turn.
+    return toolResult(block.id, { errors: failures.map((f) => f.error) });
+  }
+
+  try {
+    const finalSql = buildQuery(sql, start_date, end_date);
+    const result = await executeQuery(finalSql);
+    return toolResult(block.id, result);
+  } catch (error) {
+    return toolResult(block.id, {
+      error: error instanceof Error ? error.message : "Query failed.",
+    });
+  }
+}
+
+function handleCreateChart(
+  block: ToolUseBlock,
+  charts: ChartSpec[],
+): ToolResultBlock {
+  const { type, title, description, labels, series } = block.input as {
+    type: ChartType;
+    title: string;
+    description: string;
+    labels: string[];
+    series: { name: string; values: number[] }[];
+  };
+
+  const result = validateChartSpec(type, labels, series);
+
+  if (!result.valid) {
+    return toolResult(block.id, { error: result.error });
+  }
+  charts.push({ type, title, description, labels, series });
+  return toolResult(block.id, { valid: true, message: "Chart created." });
+}
+
+function toolResult(toolUseId: string, payload: unknown): ToolResultBlock {
+  //logger for debugging
+  console.log(
+    `Tool result for ${toolUseId}:`,
+    JSON.stringify(payload, null, 2),
+  );
   return {
     type: "tool_result",
     tool_use_id: toolUseId,
@@ -90,56 +124,9 @@ export async function runAgent(
 
     for (const block of toolUse) {
       if (block.name === "run_query") {
-        const { sql, start_date, end_date } = block.input as {
-          sql: string;
-          start_date: string;
-          end_date: string;
-        };
-        const checks = [
-          validateSql(sql),
-          validateDateRange(start_date, end_date),
-        ];
-        const failures = checks.filter((c) => !c.valid);
-
-        if (failures.length > 0) {
-          // If both validation fails, we return both data errors in the tool result.
-          // This is to avoid the model having to fix one error, then getting another error on the next turn.
-          toolResults.push(
-            toolResult(block.id, { errors: failures.map((f) => f.error) }),
-          );
-          continue;
-        }
-
-        try {
-          const finalSql = buildQuery(sql, start_date, end_date);
-          const result = await executeQuery(finalSql);
-          toolResults.push(toolResult(block.id, result));
-        } catch (error) {
-          toolResults.push(
-            toolResult(block.id, {
-              error: error instanceof Error ? error.message : "Query failed.",
-            }),
-          );
-        }
+        toolResults.push(await handleRunQuery(block));
       } else if (block.name === "create_chart") {
-        const { type, title, description, labels, series } = block.input as {
-          type: ChartType;
-          title: string;
-          description: string;
-          labels: string[];
-          series: { name: string; values: number[] }[];
-        };
-
-        const result = validateChartSpec(type, labels, series);
-
-        if (!result.valid) {
-          toolResults.push(toolResult(block.id, { error: result.error }));
-          continue;
-        }
-        charts.push({ type, title, description, labels, series });
-        toolResults.push(
-          toolResult(block.id, { valid: true, message: "Chart created." }),
-        );
+        toolResults.push(handleCreateChart(block, charts));
       } else {
         toolResults.push(
           toolResult(block.id, { error: `Unknown tool: ${block.name}` }),
@@ -152,7 +139,9 @@ export async function runAgent(
   }
 
   console.warn(`Turn limit (${MAX_TURNS}) reached before the model finished.`);
+
   const text = "I could not complete the analysis within the turn limit.";
   messages.push({ role: "assistant", content: text });
+
   return { text, charts, history: messages };
 }

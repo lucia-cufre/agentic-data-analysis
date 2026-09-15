@@ -1,4 +1,3 @@
-import { ChartType } from "./chart-validation";
 import { ValidationResult } from "./validation-type";
 
 const MIN_DATE = "20201101";

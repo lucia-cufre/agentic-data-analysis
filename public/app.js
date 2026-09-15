@@ -1,3 +1,5 @@
+import { addCharts } from "./charts";
+
 const messagesEl = document.getElementById("messages");
 const form = document.getElementById("chat-form");
 const input = document.getElementById("chat-input");
@@ -5,62 +7,26 @@ const submitButton = form.querySelector("button[type='submit']");
 const exampleButtons = document.querySelectorAll(".example-question");
 
 let conversationId = null;
-const CHART_COLORS = ["#6ea8fe", "#f4a4b8", "#8fd4a8", "#f7c76b", "#b9a0e8"];
 
-function agentIsLoading(isLoading) {
-  input.disabled = isLoading;
-  submitButton.disabled = isLoading;
-  exampleButtons.forEach((btn) => (btn.disabled = isLoading));
+function agentIsThinking(isThinking) {
+  input.disabled = isThinking;
+  submitButton.disabled = isThinking;
+  exampleButtons.forEach((button) => (button.disabled = isThinking));
 }
 
-function addMessage(classNames, text) {
+function addMessage(senderType, text) {
   const el = document.createElement("div");
-  el.classList.add("message", ...classNames.split(" "));
+  el.classList.add("message", ...senderType.split(" "));
   el.textContent = text;
   messagesEl.appendChild(el);
   messagesEl.scrollTop = messagesEl.scrollHeight;
   return el;
 }
 
-function addCharts(charts) {
-  console.log("charts received:", JSON.stringify(charts, null, 2));
-  charts.forEach((chart, i) => {
-    const wrapper = document.createElement("div");
-    wrapper.className = "chart-wrapper";
-    const canvas = document.createElement("canvas");
-    wrapper.appendChild(canvas);
-    messagesEl.appendChild(wrapper);
-
-    new Chart(canvas, {
-      type: chart.type,
-      data: {
-        labels: chart.labels,
-        datasets: chart.series.map((s, j) => ({
-          label: s.name,
-          data: s.values,
-          backgroundColor: CHART_COLORS[(i + j) % CHART_COLORS.length],
-        })),
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          title: { display: true, text: chart.title },
-          subtitle: {
-            display: !!chart.description,
-            text: chart.description ?? "",
-          },
-        },
-      },
-    });
-  });
-  messagesEl.scrollTop = messagesEl.scrollHeight;
-}
-
 async function sendQuestion(question) {
   addMessage("user", question);
   input.value = "";
-  agentIsLoading(true);
+  agentIsThinking(true);
 
   const pending = addMessage("assistant pending", "Thinking...");
 
@@ -75,7 +41,7 @@ async function sendQuestion(question) {
     pending.remove();
 
     if (!response.ok) {
-      addMessage("assistant error", data.error ?? "Something went wrong.");
+      addMessage("assistant error", data.error ?? "The assistant couldn't process that question. Please try again.");
       return;
     }
 
@@ -86,9 +52,10 @@ async function sendQuestion(question) {
     }
   } catch (err) {
     pending.remove();
-    addMessage("assistant error", "Failed to reach the server.");
+    console.error("Error sending question:", err);
+    addMessage("assistant error", "Couldn't reach the server. Check your connection and try again.");
   } finally {
-    agentIsLoading(false);
+    agentIsThinking(false);
     input.focus();
   }
 }
