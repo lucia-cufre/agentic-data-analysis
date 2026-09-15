@@ -8,7 +8,7 @@ const exampleButtons = document.querySelectorAll(".example-question");
 
 let conversationId = null;
 
-function agentIsThinking(isThinking) {
+function setAgentThinking(isThinking) {
   input.disabled = isThinking;
   submitButton.disabled = isThinking;
   exampleButtons.forEach((button) => (button.disabled = isThinking));
@@ -26,12 +26,12 @@ function addMessage(senderType, text) {
 async function sendQuestion(question) {
   addMessage("user", question);
   input.value = "";
-  agentIsThinking(true);
+  setAgentThinking(true);
 
   const pending = addMessage("assistant pending", "Thinking...");
 
   try {
-    const response = await fetch("/api/call-agents/chat", {
+    const response = await fetch("/api/chat", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ question, conversationId }),
@@ -55,7 +55,7 @@ async function sendQuestion(question) {
     console.error("Error sending question:", err);
     addMessage("assistant error", "Couldn't reach the server. Check your connection and try again.");
   } finally {
-    agentIsThinking(false);
+    setAgentThinking(false);
     input.focus();
   }
 }

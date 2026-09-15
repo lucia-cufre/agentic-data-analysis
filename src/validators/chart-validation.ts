@@ -1,4 +1,4 @@
-import { ValidationResult } from "./validation-type";
+import { ValidationResult } from "./validation-result";
 
 export type ChartType = "bar" | "line" | "pie";
 const CHART_TYPES: ChartType[] = ["bar", "line", "pie"];

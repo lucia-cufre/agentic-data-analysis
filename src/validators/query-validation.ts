@@ -1,4 +1,4 @@
-import { ValidationResult } from "./validation-type";
+import { ValidationResult } from "./validation-result";
 
 const MIN_DATE = "20201101";
 const MAX_DATE = "20210131";

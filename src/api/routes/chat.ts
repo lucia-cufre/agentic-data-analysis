@@ -1,13 +1,13 @@
 import { randomUUID } from "node:crypto";
 import { Router } from "express";
-import { runAgent } from "../../agent/agent";
-import { Message } from "../../agent/types";
+import { runAgent } from "../../agent/agent.js";
+import { Message } from "../../agent/types.js";
 
-const callAgentsRouter = Router();
+const chatRouter = Router();
 
 const conversations = new Map<string, Message[]>();
 
-callAgentsRouter.post("/chat", async (req, res) => {
+chatRouter.post("/", async (req, res) => {
     try {
       const { question, conversationId } = req.body ?? {};
 
@@ -28,4 +28,4 @@ callAgentsRouter.post("/chat", async (req, res) => {
     }
 });
 
-export default callAgentsRouter;
+export default chatRouter;

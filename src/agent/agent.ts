@@ -18,7 +18,7 @@ import {
 
 const MAX_TURNS = 10;
 
-async function callModel(messages: any[]): Promise<ModelResponse> {
+async function callModel(messages: Message[]): Promise<ModelResponse> {
   const response = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
@@ -97,7 +97,7 @@ export async function runAgent(
   question: string,
   history: Message[] = [],
 ): Promise<{ text: string; charts: ChartSpec[]; history: Message[] }> {
-  const messages: any[] = [...history, { role: "user", content: question }];
+  const messages: Message[] = [...history, { role: "user", content: question }];
   const charts: ChartSpec[] = [];
 
   for (let i = 0; i < MAX_TURNS; i++) {

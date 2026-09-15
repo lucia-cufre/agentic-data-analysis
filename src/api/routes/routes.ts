@@ -1,8 +1,8 @@
 import { Router } from "express";
-import callAgentsRouter from "./call-agents";
+import chatRouter from "./chat.js";
 
 const router = Router();
 
-router.use("/api/call-agents", callAgentsRouter);
+router.use("/api/chat", chatRouter);
 
 export default router;
